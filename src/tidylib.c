@@ -1041,8 +1041,8 @@ void TIDY_CALL         tidyGeneralInfo( TidyDoc tdoc )
     TidyDocImpl* impl = tidyDocToImpl( tdoc );
     if ( impl )
     {
-        TY_(DialogueMessage)( impl, TEXT_GENERAL_INFO, TidyDialogueInfo);
-        TY_(DialogueMessage)( impl, TEXT_GENERAL_INFO_PLEA, TidyDialogueInfo);
+        TY_(Dialogue)( impl, TEXT_GENERAL_INFO );
+        TY_(Dialogue)( impl, TEXT_GENERAL_INFO_PLEA );
     }
 }
 
