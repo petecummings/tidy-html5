@@ -843,7 +843,9 @@ TidyMessageImpl *formatStandardDynamic(TidyDocImpl* doc, Node *element, Node *no
  *********************************************************************/
 
 
-/* This function performs the heavy lifting for TY_(Report)(). */
+/* This function performs the heavy lifting for TY_(Report)(). Critically we
+** can accept the va_list needed for recursion.
+*/
 static void vReport(TidyDocImpl* doc, Node *element, Node *node, uint code, va_list args)
 {
     int i = 0;
@@ -865,22 +867,9 @@ static void vReport(TidyDocImpl* doc, Node *element, Node *node, uint code, va_l
 
             if ( dispatchTable[i].next )
             {
-                switch ( code )
-                {
-                    case TAG_NOT_ALLOWED_IN:
-                        TY_(Report)(doc, element, node, PREVIOUS_LOCATION);
-                        break;
-
-                    case TOO_MANY_ELEMENTS_IN:
-                        TY_(Report)(doc, node, node, PREVIOUS_LOCATION);
-                        break;
-
-                    default:
-                        va_copy(args_copy, args);
-                        vReport(doc, element, node, dispatchTable[i].next, args_copy);
-                        va_end(args_copy);
-                        break;
-                }
+                va_copy(args_copy, args);
+                vReport(doc, element, node, dispatchTable[i].next, args_copy);
+                va_end(args_copy);
             }
             break;
         }
@@ -980,15 +969,22 @@ void TY_(ReportUnknownOption)( TidyDocImpl* doc, ctmbstr option )
 
 /*********************************************************************
  * Output Dialogue Information
+ * As for issuing reports, Tidy manages all dialogue output from a
+ * single source in order to manage message categories in a simple
+ * an consistent manner.
  *********************************************************************/
 
 
+/* This structure ties together for each dialogue Code the default
+** TidyReportLevel. This it makes it simple to output new dialogue
+** messages, or to change report level by modifying this array.
+*/
 static struct _dialogueDispatchTable {
     uint code;                 /**< The message code. */
     TidyReportLevel level;     /**< The default TidyReportLevel of the message. */
 } dialogueDispatchTable[] = {
-    { TEXT_ACCESS_ADVICE1,   TidyDialogueDoc },
-    { TEXT_ACCESS_ADVICE2,   TidyDialogueDoc },
+    { TEXT_ACCESS_ADVICE1,   TidyDialogueDoc }, /* not a footnote */
+    { TEXT_ACCESS_ADVICE2,   TidyDialogueDoc }, /* not a footnote */
     { TEXT_BAD_FORM,         TidyDialogueDoc },
     { TEXT_BAD_MAIN,         TidyDialogueDoc },
     { TEXT_INVALID_URI,      TidyDialogueDoc },
@@ -1009,34 +1005,69 @@ static struct _dialogueDispatchTable {
 };
 
 
-/* This single Dialogue output function does what it needs to do.
+/* This message formatter for dialogue messages should be capable of formatting
+** every message, because they're not all the complex and there aren't that
+** many.
+*/
+TidyMessageImpl *formatDialogue( TidyDocImpl* doc, uint code, TidyReportLevel level, va_list args )
+{
+    switch (code)
+    {
+        case TEXT_SGML_CHARS:
+        case TEXT_VENDOR_CHARS:
+        {
+            ctmbstr str = va_arg(args, ctmbstr);
+            return TY_(tidyMessageCreate)( doc, code, level, str );
+        } break;
+            
+        case TEXT_ACCESS_ADVICE1:
+        case TEXT_ACCESS_ADVICE2:
+        case TEXT_BAD_FORM:
+        case TEXT_BAD_MAIN:
+        case TEXT_INVALID_URI:
+        case TEXT_INVALID_UTF8:
+        case TEXT_INVALID_UTF16:
+        case TEXT_M_IMAGE_ALT:
+        case TEXT_M_IMAGE_MAP:
+        case TEXT_M_LINK_ALT:
+        case TEXT_M_SUMMARY:
+        case TEXT_USING_BODY:
+        case TEXT_USING_FONT:
+        case TEXT_USING_FRAMES:
+        case TEXT_USING_LAYER:
+        case TEXT_USING_NOBR:
+        case TEXT_USING_SPACER:
+        default:
+            return TY_(tidyMessageCreate)( doc, code, level );
+            break;
+    }
+    
+    return NULL;
+}
+
+
+/* This single Dialogue output function determines the correct message level
+** and formats the message with the appropriate formatter, and then outputs it.
+** This one dialogue function should be sufficient for every use case.
 */
 void TY_(Dialogue)(TidyDocImpl* doc, uint code, ...)
 {
     int i = 0;
     va_list args;
 
-    va_start(args, code);
-
     while ( dialogueDispatchTable[i].code != 0 )
     {
         if ( dialogueDispatchTable[i].code == code )
         {
-            TidyMessageImpl *message;
             TidyReportLevel level = dialogueDispatchTable[i].level;
-
-            // WIP: can't pass a va_list to something expecting variadic!
-            // Will have to create tidyMessageCreateV
-//            message = tidyMessageCreateInitV(doc, NULL, code, 0, 0, level, args);
-            message = TY_(tidyMessageCreate)( doc, code, level, args);
-
+            va_start(args, code);
+            TidyMessageImpl *message = formatDialogue( doc, code, level, args );
+            va_end(args);
             messageOut( message );
             break;
         }
         i++;
     }
-
-    va_end(args);
 }
 
 
@@ -1060,7 +1091,6 @@ void TY_(DialogueMessage)( TidyDocImpl* doc, uint code, TidyReportLevel level )
 
 void TY_(ErrorSummary)( TidyDocImpl* doc )
 {
-    TidyMessageImpl *message = NULL;
     ctmbstr encnam = tidyLocalizedString(STRING_SPECIFIED);
     int charenc = cfg( doc, TidyCharEncoding ); 
     if ( charenc == WIN1252 ) 
@@ -1088,44 +1118,26 @@ void TY_(ErrorSummary)( TidyDocImpl* doc )
 
         if ((doc->badChars & BC_INVALID_SGML_CHARS) || (doc->badChars & BC_INVALID_NCR))
             TY_(Dialogue)( doc, TEXT_SGML_CHARS, encnam );
-//        {
-//            message = TY_(tidyMessageCreate)( doc, TEXT_SGML_CHARS, TidyDialogueDoc, encnam);
-//            messageOut(message);
-//        }
 
         if (doc->badChars & BC_INVALID_UTF8)
-        {
-            message = TY_(tidyMessageCreate)( doc, TEXT_INVALID_UTF8, TidyDialogueDoc);
-            messageOut(message);
-        }
+            TY_(Dialogue)( doc, TEXT_INVALID_UTF8 );
 
 #if SUPPORT_UTF16_ENCODINGS
-
         if (doc->badChars & BC_INVALID_UTF16)
-        {
-            message = TY_(tidyMessageCreate)( doc, TEXT_INVALID_UTF16, TidyDialogueDoc);
-            messageOut(message);
-        }
-
+            TY_(Dialogue)( doc, TEXT_INVALID_UTF16 );
 #endif
 
         if (doc->badChars & BC_INVALID_URI)
-        {
-            message = TY_(tidyMessageCreate)( doc, TEXT_INVALID_URI, TidyDialogueDoc);
-            messageOut(message);
-        }
+            TY_(Dialogue)( doc, TEXT_INVALID_URI );
     }
-
-    if (doc->badForm & flg_BadForm) /* Issue #166 - changed to BIT flag to support other errors */
+    
+    if (doc->badForm)
     {
-        message = TY_(tidyMessageCreate)( doc, TEXT_BAD_FORM, TidyDialogueDoc);
-        messageOut(message);
-    }
+        if (doc->badForm & flg_BadForm) /* Issue #166 - changed to BIT flag to support other errors */
+            TY_(Dialogue)( doc, TEXT_BAD_FORM );
 
-    if (doc->badForm & flg_BadMain) /* Issue #166 - repeated <main> element */
-    {
-        message = TY_(tidyMessageCreate)( doc, TEXT_BAD_MAIN, TidyDialogueDoc);
-        messageOut(message);
+        if (doc->badForm & flg_BadMain) /* Issue #166 - repeated <main> element */
+            TY_(Dialogue)( doc, TEXT_BAD_MAIN );
     }
 
     if (doc->badAccess)
@@ -1134,79 +1146,43 @@ void TY_(ErrorSummary)( TidyDocImpl* doc )
         if ( cfg(doc, TidyAccessibilityCheckLevel) == 0 )
         {
             if (doc->badAccess & BA_MISSING_SUMMARY)
-            {
-                message = TY_(tidyMessageCreate)( doc, TEXT_M_SUMMARY, TidyDialogueDoc);
-                messageOut(message);
-            }
+                TY_(Dialogue)( doc, TEXT_M_SUMMARY );
 
             if (doc->badAccess & BA_MISSING_IMAGE_ALT)
-            {
-                message = TY_(tidyMessageCreate)( doc, TEXT_M_IMAGE_ALT, TidyDialogueDoc);
-                messageOut(message);
-            }
+                TY_(Dialogue)( doc, TEXT_M_IMAGE_ALT );
 
             if (doc->badAccess & BA_MISSING_IMAGE_MAP)
-            {
-                message = TY_(tidyMessageCreate)( doc, TEXT_M_IMAGE_MAP, TidyDialogueDoc);
-                messageOut(message);
-            }
+                TY_(Dialogue)( doc, TEXT_M_IMAGE_MAP );
 
             if (doc->badAccess & BA_MISSING_LINK_ALT)
-            {
-                message = TY_(tidyMessageCreate)( doc, TEXT_M_LINK_ALT, TidyDialogueDoc);
-                messageOut(message);
-            }
+                TY_(Dialogue)( doc, TEXT_M_LINK_ALT );
 
             if ((doc->badAccess & BA_USING_FRAMES) && !(doc->badAccess & BA_USING_NOFRAMES))
-            {
-                message = TY_(tidyMessageCreate)( doc, TEXT_USING_FRAMES, TidyDialogueDoc);
-                messageOut(message);
-            }
+                TY_(Dialogue)( doc, TEXT_USING_FRAMES );
         }
 
         if ( cfg(doc, TidyAccessibilityCheckLevel) > 0 )
-        {
-            message = TY_(tidyMessageCreate)( doc, TEXT_ACCESS_ADVICE2, TidyDialogueDoc);
-            messageOut(message);
-        }
+            TY_(Dialogue)( doc, TEXT_ACCESS_ADVICE2 );
         else
-        {
-            message = TY_(tidyMessageCreate)( doc, TEXT_ACCESS_ADVICE1, TidyDialogueDoc);
-            messageOut(message);
-        }
+            TY_(Dialogue)( doc, TEXT_ACCESS_ADVICE1 );
     }
 
     if (doc->badLayout)
     {
         if (doc->badLayout & USING_LAYER)
-        {
-            message = TY_(tidyMessageCreate)( doc, TEXT_USING_LAYER, TidyDialogueDoc);
-            messageOut(message);
-        }
+            TY_(Dialogue)( doc, TEXT_USING_LAYER );
 
         if (doc->badLayout & USING_SPACER)
-        {
-            message = TY_(tidyMessageCreate)( doc, TEXT_USING_SPACER, TidyDialogueDoc);
-            messageOut(message);
-        }
+            TY_(Dialogue)( doc, TEXT_USING_SPACER );
 
         if (doc->badLayout & USING_FONT)
-        {
-            message = TY_(tidyMessageCreate)( doc, TEXT_USING_FONT, TidyDialogueDoc);
-            messageOut(message);
-        }
+            TY_(Dialogue)( doc, TEXT_USING_FONT );
 
         if (doc->badLayout & USING_NOBR)
-        {
-            message = TY_(tidyMessageCreate)( doc, TEXT_USING_NOBR, TidyDialogueDoc);
-            messageOut(message);
-        }
+            TY_(Dialogue)( doc, TEXT_USING_NOBR );
         
         if (doc->badLayout & USING_BODY)
-        {
-            message = TY_(tidyMessageCreate)( doc, TEXT_USING_BODY, TidyDialogueDoc);
-            messageOut(message);
-        }
+            TY_(Dialogue)( doc, TEXT_USING_BODY );
     }
 }
 
