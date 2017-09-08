@@ -983,19 +983,19 @@ static struct _dialogueDispatchTable {
     uint code;                 /**< The message code. */
     TidyReportLevel level;     /**< The default TidyReportLevel of the message. */
 } dialogueDispatchTable[] = {
-    { STRING_CONTENT_LOOKS,      TidyInfo             },
-    { STRING_DOCTYPE_GIVEN,      TidyInfo             },
-    { STRING_NO_SYSID,           TidyInfo             },
-    { STRING_HELLO_ACCESS,       TidyDialogueInfo     }, /* access */
-    { TEXT_GENERAL_INFO,         TidyDialogueInfo     }, /* console */
-    { TEXT_GENERAL_INFO_PLEA,    TidyDialogueInfo     }, /* console */
+    { STRING_CONTENT_LOOKS,      TidyDialogueInfo     }, /* reportMarkupVersion() */
+    { STRING_DOCTYPE_GIVEN,      TidyDialogueInfo     }, /* reportMarkupVersion() */
+    { STRING_NO_SYSID,           TidyDialogueInfo     }, /* reportMarkupVersion() */
+    { STRING_HELLO_ACCESS,       TidyDialogueInfo     }, /* AccessibilityChecks() */
+    { TEXT_GENERAL_INFO,         TidyDialogueInfo     }, /* tidyGeneralInfo() */
+    { TEXT_GENERAL_INFO_PLEA,    TidyDialogueInfo     }, /* tidyGeneralInfo() */
     
-    { STRING_NEEDS_INTERVENTION, TidyDialogueSummary  }, /* diagnostics */
-    { STRING_ERROR_COUNT,        TidyDialogueSummary  }, /* reportNumWarnings */
-    { STRING_NO_ERRORS,          TidyDialogueSummary  }, /* reportNumWarnings */
-    { STRING_NOT_ALL_SHOWN,      TidyDialogueSummary  }, /* reportNumWarnings*/
+    { STRING_NEEDS_INTERVENTION, TidyDialogueSummary  }, /* tidyDocRunDiagnostics() */
+    { STRING_ERROR_COUNT,        TidyDialogueSummary  }, /* ReportNumWarnings() */
+    { STRING_NO_ERRORS,          TidyDialogueSummary  }, /* ReportNumWarnings() */
+    { STRING_NOT_ALL_SHOWN,      TidyDialogueSummary  }, /* ReportNumWarnings() */
     
-    { TEXT_ACCESS_ADVICE1,       TidyDialogueFootnote },
+    { TEXT_ACCESS_ADVICE1,       TidyDialogueFootnote }, /* errorSummary() */
     { TEXT_ACCESS_ADVICE2,       TidyDialogueFootnote },
     { TEXT_BAD_FORM,             TidyDialogueFootnote },
     { TEXT_BAD_MAIN,             TidyDialogueFootnote },
