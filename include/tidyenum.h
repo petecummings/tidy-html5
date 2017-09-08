@@ -1349,16 +1349,17 @@ typedef enum
  */
 typedef enum
 {
-    TidyInfo = 350,       /**< Report: Information about markup usage */
-    TidyWarning,          /**< Report: Warning message */
-    TidyConfig,           /**< Report: Configuration error */
-    TidyAccess,           /**< Report: Accessibility message */
-    TidyError,            /**< Report: Error message - output suppressed */
-    TidyBadDocument,      /**< Report: I/O or file system error */
-    TidyFatal,            /**< Report: Crash! */
-    TidyDialogueInfo,     /**< Dialogue: Non-document related information */
-    TidyDialogueSummary,  /**< Dialogue: Summary-related information */
-    TidyDialogueDoc,      /**< Dialogue: Document-related information */
+    TidyInfo = 350,         /**< Report: Information about markup usage */
+    TidyWarning,            /**< Report: Warning message */
+    TidyConfig,             /**< Report: Configuration error */
+    TidyAccess,             /**< Report: Accessibility message */
+    TidyError,              /**< Report: Error message - output suppressed */
+    TidyBadDocument,        /**< Report: I/O or file system error */
+    TidyFatal,              /**< Report: Crash! */
+    TidyDialogueInfo,       /**< Dialogue: Non-document related information */
+    TidyDialogueSummary,    /**< Dialogue: Summary-related information */
+    TidyDialogueFootnote,   /**< Dialogue: Footnote */
+    TidyDialogueDoc = TidyDialogueFootnote, /**< Dialogue: Deprecated (renamed) */
 } TidyReportLevel;
 
     

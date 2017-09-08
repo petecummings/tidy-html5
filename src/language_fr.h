@@ -581,7 +581,7 @@ static languageDefinition language_fr = { whichPluralForm_fr, {
     { TidyFatal,                                     0, "Panique:"                                                                                               },
     { TidyDialogueInfo,                              0, "Informations: "                                                                                         },
     { TidyDialogueSummary,                           0, "Résumé:"                                                                                                },
-    { TidyDialogueDoc,                               0, "Document:"                                                                                              },
+    { TidyDialogueFootnote,                          0, "Remarque:"                                                                                              },
     { LINE_COLUMN_STRING,                            0, "Ligne: %d Col: %d - "                                                                                   },
     { STRING_DISCARDING,                             0, "rejet"                                                                                                  },
     { STRING_ERROR_COUNT_ERROR,                      0, "erreur"                                                                                                 },

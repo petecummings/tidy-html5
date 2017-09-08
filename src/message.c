@@ -983,36 +983,38 @@ static struct _dialogueDispatchTable {
     uint code;                 /**< The message code. */
     TidyReportLevel level;     /**< The default TidyReportLevel of the message. */
 } dialogueDispatchTable[] = {
-    { STRING_CONTENT_LOOKS,      TidyInfo            },
-    { STRING_DOCTYPE_GIVEN,      TidyInfo            },
-    { STRING_HELLO_ACCESS,       TidyDialogueDoc     }, /* access */
-    { STRING_NEEDS_INTERVENTION, TidyDialogueDoc     }, /* not a footnote; diagnostics */
-    { STRING_NO_SYSID,           TidyInfo            },
-    { STRING_ERROR_COUNT,        TidyDialogueSummary }, /* reportNumWarnings */
-    { STRING_NO_ERRORS,          TidyDialogueSummary }, /* reportNumWarnings */
-    { STRING_NOT_ALL_SHOWN,      TidyDialogueSummary }, /* reportNumWarnings*/
-    { TEXT_ACCESS_ADVICE1,       TidyDialogueDoc     }, /* not a footnote */
-    { TEXT_ACCESS_ADVICE2,       TidyDialogueDoc     }, /* not a footnote */
-    { TEXT_BAD_FORM,             TidyDialogueDoc     },
-    { TEXT_BAD_MAIN,             TidyDialogueDoc     },
-    { TEXT_GENERAL_INFO,         TidyDialogueInfo    }, /* console */
-    { TEXT_GENERAL_INFO_PLEA,    TidyDialogueInfo    }, /* console */
-    { TEXT_HTML_T_ALGORITHM,     TidyDialogueDoc     }, /* access */
-    { TEXT_INVALID_URI,          TidyDialogueDoc     },
-    { TEXT_INVALID_UTF8,         TidyDialogueDoc     },
-    { TEXT_INVALID_UTF16,        TidyDialogueDoc     },
-    { TEXT_M_IMAGE_ALT,          TidyDialogueDoc     },
-    { TEXT_M_IMAGE_MAP,          TidyDialogueDoc     },
-    { TEXT_M_LINK_ALT,           TidyDialogueDoc     },
-    { TEXT_M_SUMMARY,            TidyDialogueDoc     },
-    { TEXT_SGML_CHARS,           TidyDialogueDoc     },
-    { TEXT_USING_BODY,           TidyDialogueDoc     },
-    { TEXT_USING_FONT,           TidyDialogueDoc     },
-    { TEXT_USING_FRAMES,         TidyDialogueDoc     },
-    { TEXT_USING_LAYER,          TidyDialogueDoc     },
-    { TEXT_USING_NOBR,           TidyDialogueDoc     },
-    { TEXT_USING_SPACER,         TidyDialogueDoc     },
-    { TEXT_VENDOR_CHARS,         TidyDialogueDoc    	 },
+    { STRING_CONTENT_LOOKS,      TidyInfo             },
+    { STRING_DOCTYPE_GIVEN,      TidyInfo             },
+    { STRING_NO_SYSID,           TidyInfo             },
+    { STRING_HELLO_ACCESS,       TidyDialogueInfo     }, /* access */
+    { TEXT_GENERAL_INFO,         TidyDialogueInfo     }, /* console */
+    { TEXT_GENERAL_INFO_PLEA,    TidyDialogueInfo     }, /* console */
+    
+    { STRING_NEEDS_INTERVENTION, TidyDialogueSummary  }, /* diagnostics */
+    { STRING_ERROR_COUNT,        TidyDialogueSummary  }, /* reportNumWarnings */
+    { STRING_NO_ERRORS,          TidyDialogueSummary  }, /* reportNumWarnings */
+    { STRING_NOT_ALL_SHOWN,      TidyDialogueSummary  }, /* reportNumWarnings*/
+    
+    { TEXT_ACCESS_ADVICE1,       TidyDialogueFootnote },
+    { TEXT_ACCESS_ADVICE2,       TidyDialogueFootnote },
+    { TEXT_BAD_FORM,             TidyDialogueFootnote },
+    { TEXT_BAD_MAIN,             TidyDialogueFootnote },
+    { TEXT_HTML_T_ALGORITHM,     TidyDialogueFootnote },
+    { TEXT_INVALID_URI,          TidyDialogueFootnote },
+    { TEXT_INVALID_UTF8,         TidyDialogueFootnote },
+    { TEXT_INVALID_UTF16,        TidyDialogueFootnote },
+    { TEXT_M_IMAGE_ALT,          TidyDialogueFootnote },
+    { TEXT_M_IMAGE_MAP,          TidyDialogueFootnote },
+    { TEXT_M_LINK_ALT,           TidyDialogueFootnote },
+    { TEXT_M_SUMMARY,            TidyDialogueFootnote },
+    { TEXT_SGML_CHARS,           TidyDialogueFootnote },
+    { TEXT_USING_BODY,           TidyDialogueFootnote },
+    { TEXT_USING_FONT,           TidyDialogueFootnote },
+    { TEXT_USING_FRAMES,         TidyDialogueFootnote },
+    { TEXT_USING_LAYER,          TidyDialogueFootnote },
+    { TEXT_USING_NOBR,           TidyDialogueFootnote },
+    { TEXT_USING_SPACER,         TidyDialogueFootnote },
+    { TEXT_VENDOR_CHARS,         TidyDialogueFootnote },
 };
 
 
