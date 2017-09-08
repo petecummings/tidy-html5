@@ -980,6 +980,68 @@ void TY_(ReportUnknownOption)( TidyDocImpl* doc, ctmbstr option )
 
 /*********************************************************************
  * Output Dialogue Information
+ *********************************************************************/
+
+
+static struct _dialogueDispatchTable {
+    uint code;                 /**< The message code. */
+    TidyReportLevel level;     /**< The default TidyReportLevel of the message. */
+} dialogueDispatchTable[] = {
+    { TEXT_ACCESS_ADVICE1,   TidyDialogueDoc },
+    { TEXT_ACCESS_ADVICE2,   TidyDialogueDoc },
+    { TEXT_BAD_FORM,         TidyDialogueDoc },
+    { TEXT_BAD_MAIN,         TidyDialogueDoc },
+    { TEXT_INVALID_URI,      TidyDialogueDoc },
+    { TEXT_INVALID_UTF8,     TidyDialogueDoc },
+    { TEXT_INVALID_UTF16,    TidyDialogueDoc },
+    { TEXT_M_IMAGE_ALT,      TidyDialogueDoc },
+    { TEXT_M_IMAGE_MAP,      TidyDialogueDoc },
+    { TEXT_M_LINK_ALT,       TidyDialogueDoc },
+    { TEXT_M_SUMMARY,        TidyDialogueDoc },
+    { TEXT_SGML_CHARS,       TidyDialogueDoc },
+    { TEXT_USING_BODY,       TidyDialogueDoc },
+    { TEXT_USING_FONT,       TidyDialogueDoc },
+    { TEXT_USING_FRAMES,     TidyDialogueDoc },
+    { TEXT_USING_LAYER,      TidyDialogueDoc },
+    { TEXT_USING_NOBR,       TidyDialogueDoc },
+    { TEXT_USING_SPACER,     TidyDialogueDoc },
+    { TEXT_VENDOR_CHARS,     TidyDialogueDoc },
+};
+
+
+/* This single Dialogue output function does what it needs to do.
+*/
+void TY_(Dialogue)(TidyDocImpl* doc, uint code, ...)
+{
+    int i = 0;
+    va_list args;
+
+    va_start(args, code);
+
+    while ( dialogueDispatchTable[i].code != 0 )
+    {
+        if ( dialogueDispatchTable[i].code == code )
+        {
+            TidyMessageImpl *message;
+            TidyReportLevel level = dialogueDispatchTable[i].level;
+
+            // WIP: can't pass a va_list to something expecting variadic!
+            // Will have to create tidyMessageCreateV
+//            message = tidyMessageCreateInitV(doc, NULL, code, 0, 0, level, args);
+            message = TY_(tidyMessageCreate)( doc, code, level, args);
+
+            messageOut( message );
+            break;
+        }
+        i++;
+    }
+
+    va_end(args);
+}
+
+
+/*********************************************************************
+ * Legacy Output Dialogue Information
  * In addition to reports that are added to the table, Tidy emits
  * various dialogue type information. Most of these are specific to
  * exact circumstances, although `TY_(DialogueMessage)` should be
@@ -1022,15 +1084,15 @@ void TY_(ErrorSummary)( TidyDocImpl* doc )
     if (doc->badChars)
     {
         if (doc->badChars & BC_VENDOR_SPECIFIC_CHARS)
-        {
-            message = TY_(tidyMessageCreate)( doc, TEXT_VENDOR_CHARS, TidyDialogueDoc, encnam);
-            messageOut(message);
-        }
+            TY_(Dialogue)( doc, TEXT_VENDOR_CHARS, encnam );
+
         if ((doc->badChars & BC_INVALID_SGML_CHARS) || (doc->badChars & BC_INVALID_NCR))
-        {
-            message = TY_(tidyMessageCreate)( doc, TEXT_SGML_CHARS, TidyDialogueDoc, encnam);
-            messageOut(message);
-        }
+            TY_(Dialogue)( doc, TEXT_SGML_CHARS, encnam );
+//        {
+//            message = TY_(tidyMessageCreate)( doc, TEXT_SGML_CHARS, TidyDialogueDoc, encnam);
+//            messageOut(message);
+//        }
+
         if (doc->badChars & BC_INVALID_UTF8)
         {
             message = TY_(tidyMessageCreate)( doc, TEXT_INVALID_UTF8, TidyDialogueDoc);
