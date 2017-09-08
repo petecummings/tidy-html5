@@ -1487,7 +1487,7 @@ int         tidyDocRunDiagnostics( TidyDocImpl* doc )
     }
 
     if ( doc->errors > 0 && !force )
-        TY_(DialogueMessage)(doc, STRING_NEEDS_INTERVENTION, TidyDialogueDoc);
+        TY_(Dialogue)(doc, STRING_NEEDS_INTERVENTION );
 
      return tidyDocStatus( doc );
 }

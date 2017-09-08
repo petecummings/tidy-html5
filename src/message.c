@@ -983,33 +983,36 @@ static struct _dialogueDispatchTable {
     uint code;                 /**< The message code. */
     TidyReportLevel level;     /**< The default TidyReportLevel of the message. */
 } dialogueDispatchTable[] = {
-    { STRING_CONTENT_LOOKS,   TidyInfo            },
-    { STRING_DOCTYPE_GIVEN,   TidyInfo            },
-    { STRING_NO_SYSID,        TidyInfo            },
-    { STRING_ERROR_COUNT,     TidyDialogueSummary }, /* reportNumWarnings */
-    { STRING_NO_ERRORS,       TidyDialogueSummary }, /* reportNumWarnings */
-    { STRING_NOT_ALL_SHOWN,   TidyDialogueSummary }, /* reportNumWarnings*/
-    { TEXT_ACCESS_ADVICE1,    TidyDialogueDoc     }, /* not a footnote */
-    { TEXT_ACCESS_ADVICE2,    TidyDialogueDoc     }, /* not a footnote */
-    { TEXT_BAD_FORM,          TidyDialogueDoc     },
-    { TEXT_BAD_MAIN,          TidyDialogueDoc     },
-    { TEXT_GENERAL_INFO,      TidyDialogueInfo    }, /* console */
-    { TEXT_GENERAL_INFO_PLEA, TidyDialogueInfo    }, /* console */
-    { TEXT_INVALID_URI,       TidyDialogueDoc     },
-    { TEXT_INVALID_UTF8,      TidyDialogueDoc     },
-    { TEXT_INVALID_UTF16,     TidyDialogueDoc     },
-    { TEXT_M_IMAGE_ALT,       TidyDialogueDoc     },
-    { TEXT_M_IMAGE_MAP,       TidyDialogueDoc     },
-    { TEXT_M_LINK_ALT,        TidyDialogueDoc     },
-    { TEXT_M_SUMMARY,         TidyDialogueDoc     },
-    { TEXT_SGML_CHARS,        TidyDialogueDoc     },
-    { TEXT_USING_BODY,        TidyDialogueDoc     },
-    { TEXT_USING_FONT,        TidyDialogueDoc     },
-    { TEXT_USING_FRAMES,      TidyDialogueDoc     },
-    { TEXT_USING_LAYER,       TidyDialogueDoc     },
-    { TEXT_USING_NOBR,        TidyDialogueDoc     },
-    { TEXT_USING_SPACER,      TidyDialogueDoc     },
-    { TEXT_VENDOR_CHARS,      TidyDialogueDoc    	 },
+    { STRING_CONTENT_LOOKS,      TidyInfo            },
+    { STRING_DOCTYPE_GIVEN,      TidyInfo            },
+    { STRING_HELLO_ACCESS,       TidyDialogueDoc     }, /* access */
+    { STRING_NEEDS_INTERVENTION, TidyDialogueDoc     }, /* parseDocStream? */
+    { STRING_NO_SYSID,           TidyInfo            },
+    { STRING_ERROR_COUNT,        TidyDialogueSummary }, /* reportNumWarnings */
+    { STRING_NO_ERRORS,          TidyDialogueSummary }, /* reportNumWarnings */
+    { STRING_NOT_ALL_SHOWN,      TidyDialogueSummary }, /* reportNumWarnings*/
+    { TEXT_ACCESS_ADVICE1,       TidyDialogueDoc     }, /* not a footnote */
+    { TEXT_ACCESS_ADVICE2,       TidyDialogueDoc     }, /* not a footnote */
+    { TEXT_BAD_FORM,             TidyDialogueDoc     },
+    { TEXT_BAD_MAIN,             TidyDialogueDoc     },
+    { TEXT_GENERAL_INFO,         TidyDialogueInfo    }, /* console */
+    { TEXT_GENERAL_INFO_PLEA,    TidyDialogueInfo    }, /* console */
+    { TEXT_HTML_T_ALGORITHM,     TidyDialogueDoc     }, /* access */
+    { TEXT_INVALID_URI,          TidyDialogueDoc     },
+    { TEXT_INVALID_UTF8,         TidyDialogueDoc     },
+    { TEXT_INVALID_UTF16,        TidyDialogueDoc     },
+    { TEXT_M_IMAGE_ALT,          TidyDialogueDoc     },
+    { TEXT_M_IMAGE_MAP,          TidyDialogueDoc     },
+    { TEXT_M_LINK_ALT,           TidyDialogueDoc     },
+    { TEXT_M_SUMMARY,            TidyDialogueDoc     },
+    { TEXT_SGML_CHARS,           TidyDialogueDoc     },
+    { TEXT_USING_BODY,           TidyDialogueDoc     },
+    { TEXT_USING_FONT,           TidyDialogueDoc     },
+    { TEXT_USING_FRAMES,         TidyDialogueDoc     },
+    { TEXT_USING_LAYER,          TidyDialogueDoc     },
+    { TEXT_USING_NOBR,           TidyDialogueDoc     },
+    { TEXT_USING_SPACER,         TidyDialogueDoc     },
+    { TEXT_VENDOR_CHARS,         TidyDialogueDoc    	 },
 };
 
 
@@ -1036,6 +1039,8 @@ TidyMessageImpl *formatDialogue( TidyDocImpl* doc, uint code, TidyReportLevel le
                                            doc->warnings, tidyLocalizedStringN( STRING_ERROR_COUNT_WARNING, doc->warnings ),
                                            doc->errors, tidyLocalizedStringN( STRING_ERROR_COUNT_ERROR, doc->errors ) );
 
+        case STRING_HELLO_ACCESS:
+        case STRING_NEEDS_INTERVENTION:
         case STRING_NO_ERRORS:
         case STRING_NO_SYSID:
         case TEXT_ACCESS_ADVICE1:
@@ -1044,6 +1049,7 @@ TidyMessageImpl *formatDialogue( TidyDocImpl* doc, uint code, TidyReportLevel le
         case TEXT_BAD_MAIN:
         case TEXT_GENERAL_INFO:
         case TEXT_GENERAL_INFO_PLEA:
+        case TEXT_HTML_T_ALGORITHM:
         case TEXT_INVALID_URI:
         case TEXT_INVALID_UTF8:
         case TEXT_INVALID_UTF16:
@@ -1091,25 +1097,11 @@ void TY_(Dialogue)(TidyDocImpl* doc, uint code, ...)
 
 
 /*********************************************************************
- * Legacy Output Dialogue Information
- *********************************************************************/
-
-
-void TY_(DialogueMessage)( TidyDocImpl* doc, uint code, TidyReportLevel level )
-{
-    TidyMessageImpl *message = NULL;
-
-    message = TY_(tidyMessageCreate)( doc, code, level);
-    messageOut(message);
-}
-
-
-/*********************************************************************
  * Output Dialogue Information
  * In addition to reports that are added to the table, Tidy emits
  * various dialogue type information. Most of these are specific to
- * exact circumstances, although `TY_(DialogueMessage)` should be
- * used instead of adding a new function, if possible.
+ * exact circumstances, although `TY_(Dialogue)` should be used
+ * instead of adding a new function, if possible.
  *********************************************************************/
 
 

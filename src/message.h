@@ -75,8 +75,6 @@ void TY_(ReportUnknownOption)( TidyDocImpl* doc, ctmbstr option );
 /** @{ */
 
 
-void TY_(DialogueMessage)( TidyDocImpl* doc, uint code, TidyReportLevel level );
-
 void TY_(Dialogue)( TidyDocImpl* doc, uint code, ... );
 void TY_(ErrorSummary)( TidyDocImpl* doc );
 void TY_(ReportMarkupVersion)( TidyDocImpl* doc );
