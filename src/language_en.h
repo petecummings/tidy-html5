@@ -1577,8 +1577,8 @@ static languageDefinition language_en = { whichPluralForm_en, {
     { TidyError,              0,   "Error: "         },
     { TidyBadDocument,        0,   "Document: "      },
     { TidyFatal,              0,   "Panic: "         },
-    { TidyDialogueInfo,       0,   "Information: "   },
     { TidyDialogueSummary,    0,   "Summary: "       },
+    { TidyDialogueInfo,       0,   "Information: "   },
     { TidyDialogueFootnote,   0,   "Footnote: "      },
     
     

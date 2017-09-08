@@ -162,22 +162,28 @@ static void messageOut( TidyMessageImpl *message )
         go = go & ( doc->errors < cfg(doc, TidyShowErrors) );
     }
     
-    /* If suppressing TidyInfo/TidyDialogueInfo on Reports, suppress them. */
-    if ( message->level == TidyInfo || message->level == TidyDialogueInfo )
+    /* Suppress TidyInfo on Reports if applicable. */
+    if ( message->level == TidyInfo )
     {
         go = go & (cfgBool(doc, TidyShowInfo) == yes);
     }
 
-    /* If suppressing TidyWarning on Reports, suppress them. */
+    /* Suppress TidyWarning on Reports if applicable. */
     if ( message->level == TidyWarning )
     {
         go = go & (cfgBool(doc, TidyShowWarnings) == yes);
     }
 
-    /* If we're TidyQuiet and handling TidyDialogue, then suppress. */
-    if ( cfgBool(doc, TidyQuiet) )
+    /* If we're TidyQuiet and handling any type of dialogue above summaries,
+       then suppress. */
+//    if ( cfgBool(doc, TidyQuiet) )
+//    {
+//        go = go & !(message->level > TidyDialogueSummary);
+//    }
+    
+    if ( message->level > TidyDialogueSummary )
     {
-        go = go & !(message->level > TidyFatal);
+        go = go & !cfgBool(doc, TidyQuiet);
     }
 
     /* Output the message if applicable. */

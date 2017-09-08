@@ -1356,8 +1356,8 @@ typedef enum
     TidyError,              /**< Report: Error message - output suppressed */
     TidyBadDocument,        /**< Report: I/O or file system error */
     TidyFatal,              /**< Report: Crash! */
-    TidyDialogueInfo,       /**< Dialogue: Non-document related information */
     TidyDialogueSummary,    /**< Dialogue: Summary-related information */
+    TidyDialogueInfo,       /**< Dialogue: Non-document related information */
     TidyDialogueFootnote,   /**< Dialogue: Footnote */
     TidyDialogueDoc = TidyDialogueFootnote, /**< Dialogue: Deprecated (renamed) */
 } TidyReportLevel;
