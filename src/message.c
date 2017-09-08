@@ -986,7 +986,7 @@ static struct _dialogueDispatchTable {
     { STRING_CONTENT_LOOKS,      TidyInfo            },
     { STRING_DOCTYPE_GIVEN,      TidyInfo            },
     { STRING_HELLO_ACCESS,       TidyDialogueDoc     }, /* access */
-    { STRING_NEEDS_INTERVENTION, TidyDialogueDoc     }, /* parseDocStream? */
+    { STRING_NEEDS_INTERVENTION, TidyDialogueDoc     }, /* not a footnote; diagnostics */
     { STRING_NO_SYSID,           TidyInfo            },
     { STRING_ERROR_COUNT,        TidyDialogueSummary }, /* reportNumWarnings */
     { STRING_NO_ERRORS,          TidyDialogueSummary }, /* reportNumWarnings */
@@ -1286,6 +1286,7 @@ static const tidyStringsKeyItem tidyStringsKeys[] = {
 
     FOREACH_TIDYCONFIGCATEGORY(MAKE_STRUCT)
     FOREACH_MSG_MISC(MAKE_STRUCT)
+    FOREACH_FOOTNOTE_MSG(MAKE_STRUCT)
     FOREACH_DIALOG_MSG(MAKE_STRUCT)
     FOREACH_REPORT_MSG(MAKE_STRUCT)
     
