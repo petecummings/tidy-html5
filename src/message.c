@@ -182,11 +182,6 @@ static void messageOut( TidyMessageImpl *message )
 
     /* If we're TidyQuiet and handling any type of dialogue above summaries,
        then suppress. */
-//    if ( cfgBool(doc, TidyQuiet) )
-//    {
-//        go = go & !(message->level > TidyDialogueSummary);
-//    }
-    
     if ( message->level > TidyDialogueSummary )
     {
         go = go & !cfgBool(doc, TidyQuiet);
