@@ -329,7 +329,10 @@ static struct _dispatchTable {
     { REPLACING_ELEMENT,            TidyWarning,     formatStandard          },
     { REPLACING_UNEX_ELEMENT,       TidyWarning,     formatStandard          },
     { SPACE_PRECEDING_XMLDECL,      TidyWarning,     formatStandard          },
+    { STRING_CONTENT_LOOKS,         TidyInfo,        formatStandard          }, /* reportMarkupVersion() */
+    { STRING_DOCTYPE_GIVEN,         TidyInfo,        formatStandard          }, /* reportMarkupVersion() */
     { STRING_MISSING_MALFORMED,     TidyConfig,      formatStandard          },
+    { STRING_NO_SYSID,              TidyInfo,        formatStandard          }, /* reportMarkupVersion() */
     { STRING_UNKNOWN_OPTION,        TidyConfig,      formatStandard          },
     { SUSPECTED_MISSING_QUOTE,      TidyError,       formatStandard          },
     { TAG_NOT_ALLOWED_IN,           TidyWarning,     formatStandard, PREVIOUS_LOCATION },
@@ -689,9 +692,14 @@ TidyMessageImpl *formatStandard(TidyDocImpl* doc, Node *element, Node *node, uin
             return TY_(tidyMessageCreateWithNode)(doc, element, code, level, elemdesc, tagtype );
         }
 
+        case STRING_NO_SYSID:
+            return TY_(tidyMessageCreate)( doc, code, level );
+            
         case FILE_CANT_OPEN:
         case FILE_CANT_OPEN_CFG:
         case FILE_NOT_FILE:
+        case STRING_CONTENT_LOOKS:
+        case STRING_DOCTYPE_GIVEN:
         case STRING_MISSING_MALFORMED:
         {
             ctmbstr str;
@@ -990,9 +998,6 @@ static struct _dialogueDispatchTable {
     uint code;                 /**< The message code. */
     TidyReportLevel level;     /**< The default TidyReportLevel of the message. */
 } dialogueDispatchTable[] = {
-    { STRING_CONTENT_LOOKS,      TidyInfo     }, /* reportMarkupVersion() */
-    { STRING_DOCTYPE_GIVEN,      TidyInfo     }, /* reportMarkupVersion() */
-    { STRING_NO_SYSID,           TidyInfo     }, /* reportMarkupVersion() */
     { STRING_HELLO_ACCESS,       TidyDialogueInfo     }, /* AccessibilityChecks() */
     { TEXT_GENERAL_INFO,         TidyDialogueInfo     }, /* tidyGeneralInfo() */
     { TEXT_GENERAL_INFO_PLEA,    TidyDialogueInfo     }, /* tidyGeneralInfo() */
@@ -1033,8 +1038,6 @@ TidyMessageImpl *formatDialogue( TidyDocImpl* doc, uint code, TidyReportLevel le
 {
     switch (code)
     {
-        case STRING_CONTENT_LOOKS:
-        case STRING_DOCTYPE_GIVEN:
         case TEXT_SGML_CHARS:
         case TEXT_VENDOR_CHARS:
         {
@@ -1051,7 +1054,6 @@ TidyMessageImpl *formatDialogue( TidyDocImpl* doc, uint code, TidyReportLevel le
         case STRING_HELLO_ACCESS:
         case STRING_NEEDS_INTERVENTION:
         case STRING_NO_ERRORS:
-        case STRING_NO_SYSID:
         case TEXT_ACCESS_ADVICE1:
         case TEXT_ACCESS_ADVICE2:
         case TEXT_BAD_FORM:
@@ -1226,7 +1228,7 @@ void TY_(ErrorSummary)( TidyDocImpl* doc )
 void TY_(ReportMarkupVersion)( TidyDocImpl* doc )
 {
     if ( doc->givenDoctype )
-        TY_(Dialogue)( doc, STRING_DOCTYPE_GIVEN, doc->givenDoctype );
+        TY_(Report)( doc, NULL, NULL, STRING_DOCTYPE_GIVEN, doc->givenDoctype );
 
     if ( ! cfgBool(doc, TidyXmlTags) )
     {
@@ -1237,11 +1239,11 @@ void TY_(ReportMarkupVersion)( TidyDocImpl* doc )
         if ( !vers )
             vers = tidyLocalizedString(STRING_HTML_PROPRIETARY);
 
-        TY_(Dialogue)( doc, STRING_CONTENT_LOOKS, vers );
+        TY_(Report)( doc, NULL, NULL, STRING_CONTENT_LOOKS, vers );
 
         /* Warn about missing sytem identifier (SI) in emitted doctype */
         if ( TY_(WarnMissingSIInEmittedDocType)( doc ) )
-            TY_(Dialogue)( doc, STRING_NO_SYSID );
+            TY_(Report)( doc, NULL, NULL, STRING_NO_SYSID );
     }
 }
 
