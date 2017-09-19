@@ -162,8 +162,14 @@ static void messageOut( TidyMessageImpl *message )
         go = go & ( doc->errors < cfg(doc, TidyShowErrors) );
     }
     
-    /* Suppress TidyInfo on Reports if applicable. */
-    if ( message->level == TidyInfo )
+//    /* Suppress TidyInfo on Reports if applicable. */
+//    if ( message->level == TidyInfo )
+//    {
+//        go = go & (cfgBool(doc, TidyShowInfo) == yes);
+//    }
+
+    /* If suppressing TidyInfo/TidyDialogueInfo on Reports, suppress them. */
+    if ( message->level == TidyInfo || message->level == TidyDialogueInfo )
     {
         go = go & (cfgBool(doc, TidyShowInfo) == yes);
     }
@@ -989,9 +995,9 @@ static struct _dialogueDispatchTable {
     uint code;                 /**< The message code. */
     TidyReportLevel level;     /**< The default TidyReportLevel of the message. */
 } dialogueDispatchTable[] = {
-    { STRING_CONTENT_LOOKS,      TidyDialogueInfo     }, /* reportMarkupVersion() */
-    { STRING_DOCTYPE_GIVEN,      TidyDialogueInfo     }, /* reportMarkupVersion() */
-    { STRING_NO_SYSID,           TidyDialogueInfo     }, /* reportMarkupVersion() */
+    { STRING_CONTENT_LOOKS,      TidyInfo     }, /* reportMarkupVersion() */
+    { STRING_DOCTYPE_GIVEN,      TidyInfo     }, /* reportMarkupVersion() */
+    { STRING_NO_SYSID,           TidyInfo     }, /* reportMarkupVersion() */
     { STRING_HELLO_ACCESS,       TidyDialogueInfo     }, /* AccessibilityChecks() */
     { TEXT_GENERAL_INFO,         TidyDialogueInfo     }, /* tidyGeneralInfo() */
     { TEXT_GENERAL_INFO_PLEA,    TidyDialogueInfo     }, /* tidyGeneralInfo() */
